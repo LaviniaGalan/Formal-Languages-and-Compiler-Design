@@ -1,0 +1,8 @@
+start
+char _a;
+int $b,$c;
+string hei;
+_a = 'Salut!'
+write(_a);
+hei = "Hei!";
+exit;
