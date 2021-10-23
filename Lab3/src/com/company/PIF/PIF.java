@@ -18,8 +18,8 @@ public class PIF {
     public String toString() {
         String result = "";
         for(Pair<Integer, Pair<Integer, Integer>> pair: pif){
-            result += pair.getKey() + " | " + pair.getValue().getKey() + " | " + pair.getValue().getValue() + " | ";
             result += "\n _______________________________________ \n";
+            result += pair.getKey() + " -> (" + pair.getValue().getKey() + ", " + pair.getValue().getValue() + ") ";
 
         }
         return result;

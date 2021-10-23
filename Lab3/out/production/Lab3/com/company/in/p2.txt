@@ -1,0 +1,21 @@
+start;
+int a, d, ok;
+char c;
+read(a);
+d = 2;
+ok = 1;
+while(ok == 1 && d*d <= a) do {
+if(a % d == 0) then {
+ok = 0;
+};
+d = d - 1;
+};
+a = -2 + 5;
+if(ok == 1) then {
+write("The number is prime.");
+}
+else {
+write("The number is not prime.");
+};
+c = 'c';
+exit;

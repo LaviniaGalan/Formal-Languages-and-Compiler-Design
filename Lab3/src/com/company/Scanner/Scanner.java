@@ -9,12 +9,12 @@ import java.util.*;
 
 public class Scanner {
 
-    Classification classification = new Classification();
+    Classifier classifier = new Classifier();
 
     SymbolTable symbolTable = new SymbolTable();
     PIF pif = new PIF();
 
-    public void scanFile(String fileName) throws Exception {
+    public void scanFile(String fileName){
         List<Pair<String, Integer>> tokensWithLineNumber = new ArrayList<>();
         List<String> tokens = new ArrayList<>();  // doar pentru afisare
         try
@@ -32,14 +32,14 @@ public class Scanner {
                     tokensWithLineNumber.add(new Pair<String, Integer>(token, i));
                     tokens.add(token);
                 }
-
+                i++;
             }
             fr.close();
 
             System.out.println(tokens);
             buildPIF(tokensWithLineNumber);
-            System.out.println(pif);
-            i++;
+            writeResultsToFile();
+
         }
         catch(IOException e)
         {
@@ -53,17 +53,22 @@ public class Scanner {
 
         int currentPosition = 0;
 
-        while (currentPosition != line.length()) {
+        while (currentPosition < line.length()) {
             if(line.charAt(currentPosition) == '"') {
                 String stringConstant = extractStringConstant(line, currentPosition);
                 tokensList.add(stringConstant);
                 currentPosition += stringConstant.length();
             }
-            else if(classification.isSeparator(line.charAt(currentPosition)+"")) {
+            else if(classifier.isSeparator(line.charAt(currentPosition)+"")) {
                 if(! (line.charAt(currentPosition)+"").equals(" ")) {
                     tokensList.add(line.charAt(currentPosition)+"");
                 }
                 currentPosition++;
+            }
+            else if(line.charAt(currentPosition) == '-'){
+                String token = extractMinus(line, currentPosition);
+                tokensList.add(token);
+                currentPosition = currentPosition + token.length();
             }
             else if(! extractOperator(line, currentPosition).equals("")) {
                 String operator = extractOperator(line, currentPosition);
@@ -88,20 +93,54 @@ public class Scanner {
             token += line.charAt(currentPosition);
             currentPosition++;
         }
-        token += "\"";
+        if(currentPosition < line.length() && line.charAt(currentPosition) == '"')
+            token += "\"";
 
         return token;
     }
 
 
+    public String extractMinus(String line, int currentPosition){
+        if(currentPosition == line.length() - 1)
+            return "-";
+        int auxPosition = currentPosition + 1;
+//        while(auxPosition < line.length() && line.charAt(auxPosition) == ' '){
+//            auxPosition++;
+//        }
+        String token = "-";
+        while(auxPosition < line.length() && Character.isDigit(line.charAt(auxPosition))) {
+            token += line.charAt(auxPosition);
+            auxPosition++;
+        }
+
+        auxPosition = currentPosition - 1;
+        boolean isConstant = true;
+        while(auxPosition >= 0){
+            if(line.charAt(auxPosition) != ' '){
+                if(!(classifier.isOperator(line.charAt(auxPosition) + "") ||
+                        classifier.isSeparator(line.charAt(auxPosition) + ""))){
+                    isConstant = false;
+                }
+                break;
+            }
+            auxPosition = auxPosition - 1;
+        }
+        if(isConstant){
+            return token;
+        }
+        else {
+            return "-";
+        }
+    }
+
     public String extractOperator(String line, int currentPosition){
         if(currentPosition < line.length() - 1) {
             String possibleOperator = line.charAt(currentPosition) + "" + line.charAt(currentPosition + 1);
-            if(classification.isOperator(possibleOperator)){
+            if(classifier.isOperator(possibleOperator)){
                 return possibleOperator;
             }
         }
-        if (classification.isOperator(line.charAt(currentPosition) + "")){
+        if (classifier.isOperator(line.charAt(currentPosition) + "")){
             return line.charAt(currentPosition) + "";
         }
         return "";
@@ -111,7 +150,7 @@ public class Scanner {
         String token = "";
 
         while (currentPosition < line.length() &&
-                ! classification.isSeparator(line.charAt(currentPosition) + "")
+                ! classifier.isSeparator(line.charAt(currentPosition) + "")
                 && extractOperator(line, currentPosition).equals("")) {
 
             token += line.charAt(currentPosition) + "";
@@ -121,47 +160,52 @@ public class Scanner {
     }
 
 
-    public void buildPIF(List<Pair<String, Integer>> tokens) throws Exception {
-        PIF pif = new PIF();
+    public void buildPIF(List<Pair<String, Integer>> tokens) {
         for(Pair<String, Integer> tokenWithLineNumber: tokens){
             String token = tokenWithLineNumber.getKey();
 
-            if(classification.isReservedWord(token) ||
-               classification.isOperator(token) ||
-               classification.isSeparator(token)) {
+            if(classifier.isReservedWord(token) ||
+               classifier.isOperator(token) ||
+               classifier.isSeparator(token)) {
 
-                int code = classification.getCode(token);
+                int code = classifier.getCode(token);
                 pif.add(code, new Pair<>(-1, -1));
             }
 
-            else if(classification.isIdentifier(token)){
-
-                try {
-                    symbolTable.add(token);
-                }
-                catch (Exception e){
-                    continue;
-                }
-
+            else if(classifier.isIdentifier(token)){
+                symbolTable.add(token);
                 Pair<Integer, Integer> position = symbolTable.getPosition(token);
                 pif.add(0, position);
             }
-            else if(classification.isConstant(token)){
-                try {
-                    symbolTable.add(token);
-                }
-                catch (Exception e){
-                    continue;
-                }
-
+            else if(classifier.isConstant(token)){
+                symbolTable.add(token);
                 Pair<Integer, Integer> position = symbolTable.getPosition(token);
                 pif.add(1, position);
             }
             else {
                 System.out.println("Error at line " + tokenWithLineNumber.getValue() + ": invalid token " + token);
             }
-
         }
-        System.out.println(pif);
+    }
+
+    public void writeResultsToFile(){
+        try
+        {
+            File pifFile = new File("E:\\CS\\An 3\\FLCD\\Lab3\\src\\com\\company\\out\\PIF.out");
+            FileWriter pifFileWriter = new FileWriter(pifFile);
+            BufferedWriter pifWriter = new BufferedWriter(pifFileWriter);
+            pifWriter.write(pif.toString());
+            pifWriter.close();
+
+            File symbolTableFile = new File("E:\\CS\\An 3\\FLCD\\Lab3\\src\\com\\company\\out\\SymbolTable.out");
+            FileWriter symbolTableFileWriter = new FileWriter(symbolTableFile);
+            BufferedWriter symbolTableWriter = new BufferedWriter(symbolTableFileWriter);
+            symbolTableWriter.write(symbolTable.toString());
+            symbolTableWriter.close();
+        }
+        catch(IOException e)
+        {
+            e.printStackTrace();
+        }
     }
 }
