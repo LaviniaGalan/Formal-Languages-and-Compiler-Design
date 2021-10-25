@@ -2,8 +2,11 @@ start
 char _a;
 int $b,$c;
 string hei;
-_a = 'Salut!'
+_a = 'Salut!';
 a = 'v'
+d = d -1
+a = -2 + 3;
 write(_a);
 hei = "Hei!";
+s = "salut
 exit;

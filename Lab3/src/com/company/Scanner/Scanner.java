@@ -37,8 +37,11 @@ public class Scanner {
             fr.close();
 
             System.out.println(tokens);
-            buildPIF(tokensWithLineNumber);
-            writeResultsToFile();
+            boolean error = buildPIF(tokensWithLineNumber);
+            if(! error) {
+                System.out.println("Lexically correct!");
+                writeResultsToFile();
+            }
 
         }
         catch(IOException e)
@@ -160,7 +163,8 @@ public class Scanner {
     }
 
 
-    public void buildPIF(List<Pair<String, Integer>> tokens) {
+    public boolean buildPIF(List<Pair<String, Integer>> tokens) {
+        boolean error = false;
         for(Pair<String, Integer> tokenWithLineNumber: tokens){
             String token = tokenWithLineNumber.getKey();
 
@@ -184,8 +188,10 @@ public class Scanner {
             }
             else {
                 System.out.println("Error at line " + tokenWithLineNumber.getValue() + ": invalid token " + token);
+                error = true;
             }
         }
+        return error;
     }
 
     public void writeResultsToFile(){

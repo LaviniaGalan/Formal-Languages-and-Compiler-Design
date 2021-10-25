@@ -68,13 +68,5 @@ public class Classifier {
         return codificationTable.get(token);
     }
 
-    public List<String> getSeparators(){
-        return separators;
-    }
-
-    public List<String> getOperators(){
-        return operators;
-    }
-
 
 }
