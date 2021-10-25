@@ -1,11 +1,12 @@
 start
 char _a;
-int $b,$c;
+int b@,@c;
 string hei;
 _a = 'Salut!';
 a = 'v'
-d = d -1
+d = 2d -1
 a = -2 + 3;
+j <= -0
 write(_a);
 hei = "Hei!";
 s = "salut

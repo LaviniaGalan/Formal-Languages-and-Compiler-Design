@@ -9,8 +9,8 @@ public class PIF {
 
     private List<Pair<Integer, Pair<Integer, Integer>>> pif = new ArrayList<>();
 
-    public void add(Integer code, Pair<Integer, Integer> value) {
-        Pair<Integer, Pair<Integer, Integer>> pair = new Pair<>(code, value);
+    public void add(Integer code, Pair<Integer, Integer> position) {
+        Pair<Integer, Pair<Integer, Integer>> pair = new Pair<>(code, position);
         pif.add(pair);
     }
 

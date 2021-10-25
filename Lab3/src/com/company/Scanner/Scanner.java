@@ -16,7 +16,6 @@ public class Scanner {
 
     public void scanFile(String fileName){
         List<Pair<String, Integer>> tokensWithLineNumber = new ArrayList<>();
-        List<String> tokens = new ArrayList<>();  // doar pentru afisare
         try
         {
             File file = new File(fileName);
@@ -28,20 +27,19 @@ public class Scanner {
             while((line = br.readLine()) != null)
             {
                 List<String> tokensFromLine = tokenize(line);
+                System.out.println(tokensFromLine);
                 for(String token: tokensFromLine){
                     tokensWithLineNumber.add(new Pair<String, Integer>(token, i));
-                    tokens.add(token);
                 }
                 i++;
             }
             fr.close();
 
-            System.out.println(tokens);
             boolean error = buildPIF(tokensWithLineNumber);
             if(! error) {
-                System.out.println("Lexically correct!");
-                writeResultsToFile();
-            }
+                System.out.println("Lexically correct!");}
+            writeResultsToFile();
+            //}
 
         }
         catch(IOException e)
@@ -61,6 +59,11 @@ public class Scanner {
                 String stringConstant = extractStringConstant(line, currentPosition);
                 tokensList.add(stringConstant);
                 currentPosition += stringConstant.length();
+            }
+            else if(line.charAt(currentPosition) == '\'') {
+                String characterConstant = extractCharacterConstant(line, currentPosition);
+                tokensList.add(characterConstant);
+                currentPosition += characterConstant.length();
             }
             else if(classifier.isSeparator(line.charAt(currentPosition)+"")) {
                 if(! (line.charAt(currentPosition)+"").equals(" ")) {
@@ -102,6 +105,19 @@ public class Scanner {
         return token;
     }
 
+    public String extractCharacterConstant(String line, int currentPosition){
+        String token = "'";
+        currentPosition++;
+
+        while (currentPosition < line.length() && line.charAt(currentPosition) != '\''){
+            token += line.charAt(currentPosition);
+            currentPosition++;
+        }
+        if(currentPosition < line.length() && line.charAt(currentPosition) == '\'')
+            token += "'";
+
+        return token;
+    }
 
     public String extractMinus(String line, int currentPosition){
         if(currentPosition == line.length() - 1)
@@ -111,7 +127,10 @@ public class Scanner {
 //            auxPosition++;
 //        }
         String token = "-";
-        while(auxPosition < line.length() && Character.isDigit(line.charAt(auxPosition))) {
+        //while(auxPosition < line.length() && Character.isDigit(line.charAt(auxPosition))) {
+        while (auxPosition < line.length() &&
+                ! classifier.isSeparator(line.charAt(auxPosition) + "")
+                && extractOperator(line, auxPosition).equals("")) {
             token += line.charAt(auxPosition);
             auxPosition++;
         }

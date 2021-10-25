@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 public class Classifier {
-    private List<String> reservedWords = Arrays.asList("start", "int", "char", "string", "array", "if", "then",
+    private List<String> reservedWords = Arrays.asList("start", "int", "char", "string", "if", "then",
             "else", "while", "do", "read", "write", "exit");
 
     private List<String> operators = Arrays.asList("+", "-", "*", "/", "%", "=", "==",

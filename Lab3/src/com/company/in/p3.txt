@@ -1,6 +1,5 @@
 start;
 int x, sum, n, i;
-int[10] arr;
 read(n);
 i = 1;
 while(i <= n) do {
