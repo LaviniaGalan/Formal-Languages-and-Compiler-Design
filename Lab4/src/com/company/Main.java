@@ -17,8 +17,8 @@ public class Main {
     public static void main(String[] args) {
 
         fa = new FiniteAutomata();
-        //fa.readFAFromFile("E:\\CS\\An 3\\FLCD\\Lab5 - FA\\src\\com\\company\\in\\nfa.txt");
-        fa.readFAFromFile("E:\\CS\\An 3\\FLCD\\Lab5 - FA\\src\\com\\company\\in\\fa.txt");
+        //fa.readFAFromFile("E:\\CS\\An 3\\FLCD\\Lab4\\src\\com\\company\\in\\nfa.txt");
+        fa.readFAFromFile("E:\\CS\\An 3\\FLCD\\Lab4\\src\\com\\company\\in\\fa.txt");
 
         initializeCommands();
 
