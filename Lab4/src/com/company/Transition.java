@@ -1,18 +1,18 @@
 package com.company;
 
 public class Transition {
-    String state1;
+    String sourceState;
     String processedSymbol;
-    String state2;
+    String targetState;
 
-    public Transition(String state1, String processedSymbol, String state2) {
-        this.state1 = state1;
+    public Transition(String sourceState, String processedSymbol, String targetState) {
+        this.sourceState = sourceState;
         this.processedSymbol = processedSymbol;
-        this.state2 = state2;
+        this.targetState = targetState;
     }
 
     @Override
     public String toString() {
-        return "d(" + this.state1 + ", " + this.processedSymbol + ") = " + this.state2;
+        return "d(" + this.sourceState + ", " + this.processedSymbol + ") = " + this.targetState;
     }
 }
