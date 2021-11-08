@@ -128,7 +128,6 @@ public class Scanner {
 //        while(auxPosition < line.length() && line.charAt(auxPosition) == ' '){
 //            auxPosition++;
 //        }
-        //while(auxPosition < line.length() && Character.isDigit(line.charAt(auxPosition))) {
         while (auxPosition < line.length() &&
                 ! classifier.isSeparator(line.charAt(auxPosition) + "")
                 && extractOperator(line, auxPosition).equals("")) {
