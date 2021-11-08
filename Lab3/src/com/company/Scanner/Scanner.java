@@ -71,8 +71,8 @@ public class Scanner {
                 }
                 currentPosition++;
             }
-            else if(line.charAt(currentPosition) == '-'){
-                String token = extractMinus(line, currentPosition);
+            else if(line.charAt(currentPosition) == '-' || line.charAt(currentPosition) == '+'){
+                String token = extractSign(line, currentPosition);
                 tokensList.add(token);
                 currentPosition = currentPosition + token.length();
             }
@@ -119,14 +119,15 @@ public class Scanner {
         return token;
     }
 
-    public String extractMinus(String line, int currentPosition){
+    public String extractSign(String line, int currentPosition){
+        String sign = line.charAt(currentPosition) + "";
+        String token = sign;
         if(currentPosition == line.length() - 1)
-            return "-";
+            return sign;
         int auxPosition = currentPosition + 1;
 //        while(auxPosition < line.length() && line.charAt(auxPosition) == ' '){
 //            auxPosition++;
 //        }
-        String token = "-";
         //while(auxPosition < line.length() && Character.isDigit(line.charAt(auxPosition))) {
         while (auxPosition < line.length() &&
                 ! classifier.isSeparator(line.charAt(auxPosition) + "")
@@ -151,7 +152,7 @@ public class Scanner {
             return token;
         }
         else {
-            return "-";
+            return sign;
         }
     }
 
