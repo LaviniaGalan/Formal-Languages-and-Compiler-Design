@@ -1,0 +1,39 @@
+Prog DecList StmtList Dec Type IdenList SimpleType ArrType Number Iden Stmt AssignStmt IOStmt CondStmt LoopStmt Expr CharConst StringConst NumConst NumExpr NumConst Operator Const CompCond Cond LogOperator RelOperator Letter Rest Digit NonZeroDigit Number RestNumber Char CharSeq
+start ; exit int char string [ ] , = + * % - / read ( ) write if { } then else while do && || <= < == > >= != _ A B C D E F G H I J K 0 1 2 3 4 5 6 7 8 9 ' ' " " ? !
+Prog
+Prog -> start ; DecList StmtList exit ;
+DecList -> Dec | Dec DecList
+Dec -> Type IdenList ;
+Type -> SimpleType | ArrType
+SimpleType -> int | char | string
+ArrType -> SimpleType [ Number ]
+IdenList -> Iden | Iden , IdenList
+
+StmtList -> Stmt ; | Stmt ; StmtList
+Stmt -> AssignStmt | IOStmt | CondStmt | LoopStmt
+AssignStmt -> Iden = Expr
+Expr -> CharConst | StringConst | NumExpr
+NumExpr -> NumConst | NumConst Operator NumExpr | Iden | Iden Operator NumExpr
+Operator -> + | * | % | - | /
+IOStmt -> read ( Iden ) | write ( Iden ) | write ( Const )
+CondStmt -> if ( CompCond ) then { StmtList } | if ( CompCond ) then { StmtList } else {StmtList}
+LoopStmt -> while ( CompCond ) do { StmtList }
+CompCond -> Cond | Cond LogOperator CompCond
+LogOperator -> && | ||
+Cond -> NumExpr RelOperator NumExpr
+RelOperator -> <= | < | == | > | >= | !=
+
+Iden -> Letter | Letter Rest
+Rest -> Letter | Digit | _ | Letter Rest | Digit Rest | _ Rest
+Letter -> A | B | C | D | E | F | G | H | I | J | K
+Digit -> 0 | NonZeroDigit
+NonZeroDigit -> 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+Number -> NonZeroDigit RestNumber
+RestNumber -> Digit | Digit RestNumber
+
+Const -> CharConst | StringConst | NumConst
+CharConst -> ' Char '
+Char -> Letter | Digit | _ | ? | !
+StringConst -> " CharSeq "
+CharSeq -> Char | Char CharSeq
+
