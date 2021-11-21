@@ -2,7 +2,7 @@ S A B
 a b epsilon
 S
 S -> epsilon | a B | b A
-A -> a
+A -> a | a A
 A -> a A | b A
 B -> b | b B
 A B -> a

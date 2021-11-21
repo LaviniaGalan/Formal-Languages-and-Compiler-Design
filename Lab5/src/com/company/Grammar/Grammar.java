@@ -41,7 +41,7 @@ public class Grammar {
                         this.startingSymbol = startingSymbol[0];
                     }
                     else{
-                        this.initializeProductions(line);
+                        this.addProductions(line);
                     }
                     index += 1;
                 }
@@ -62,7 +62,7 @@ public class Grammar {
     }
 
 
-    public void initializeProductions(String line){
+    public void addProductions(String line){
         String[] sides = line.split("->");
         String lhs = sides[0];
         String rhs = sides[1];
