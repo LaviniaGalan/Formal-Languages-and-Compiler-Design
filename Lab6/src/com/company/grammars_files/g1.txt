@@ -1,0 +1,7 @@
+S A B
+a b epsilon
+S
+S -> a B | b A | epsilon
+A -> a | a A
+A -> a A | b A
+B -> b | b B
