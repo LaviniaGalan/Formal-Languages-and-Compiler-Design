@@ -1,5 +1,5 @@
-Prog DecList StmtList Dec Type IdenList SimpleType ArrType Number Iden Stmt AssignStmt IOStmt CondStmt LoopStmt Expr CharConst StringConst NumConst NumExpr NumConst Operator Const CompCond Cond LogOperator RelOperator Letter Rest Digit NonZeroDigit Number RestNumber Char CharSeq
-start ; exit int char string [ ] , = + * % - / read ( ) write if { } then else while do && || <= < == > >= != _ A B C D E F G H I J K 0 1 2 3 4 5 6 7 8 9 ' ' " " ? !
+Prog DecList StmtList Dec Type IdenList SimpleType ArrType Number Iden Stmt AssignStmt IOStmt CondStmt LoopStmt Expr NumConst NumExpr Operator Const CompCond Cond LogOperator RelOperator Number
+start ; exit int char string [ ] , = + * % - / read ( ) write if { } then else while do && || <= < == > >= != identifier constant numerical_constant number
 Prog
 Prog -> start ; DecList StmtList exit ;
 DecList -> Dec | Dec DecList
@@ -23,17 +23,8 @@ LogOperator -> && | ||
 Cond -> NumExpr RelOperator NumExpr
 RelOperator -> <= | < | == | > | >= | !=
 
-Iden -> Letter | Letter Rest
-Rest -> Letter | Digit | _ | Letter Rest | Digit Rest | _ Rest
-Letter -> A | B | C | D | E | F | G | H | I | J | K
-Digit -> 0 | NonZeroDigit
-NonZeroDigit -> 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
-Number -> NonZeroDigit RestNumber
-RestNumber -> Digit | Digit RestNumber
+Iden -> identifier
 
-Const -> CharConst | StringConst | NumConst
-CharConst -> ' Char '
-Char -> Letter | Digit | _ | ? | !
-StringConst -> " CharSeq "
-CharSeq -> Char | Char CharSeq
-
+Const -> constant
+NumConst -> numerical_constant
+Number -> number
