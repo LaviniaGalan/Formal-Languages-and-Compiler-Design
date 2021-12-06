@@ -3,33 +3,37 @@ package com.company.Parser;
 import com.company.Grammar.Grammar;
 
 import java.lang.reflect.Array;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 
 public class Parser {
 
     private Grammar grammar;
-    private List<String> w;
+    private List<String> w = new ArrayList<>();
 
     private String state;
     private int i;
     private Stack<String> alpha;
     private Stack<String> beta;
 
-    public Parser(Grammar grammar, List<String> w) {
+    List<String> alphaList = new ArrayList<>();
+
+    public Parser(Grammar grammar, String w) {
         this.grammar = grammar;
-        this.w = w;
+        String[] wAsList = w.split(" ");
+        this.w.addAll(Arrays.asList(wAsList));
 
         state = "q";
         i = 0;
         alpha = new Stack<>();
-        alpha.push("epsilon");
         beta = new Stack<>();
         beta.push(grammar.getStartingSymbol());
     }
 
     public void descendingRecursiveParsing(){
+
+        grammar.solveLeftRecursivity();
+        System.out.println(grammar);
+
         while (!state.equals("f") && !state.equals("e")){
             if(state.equals("q")){
                 if(i == w.size() && beta.empty()){
@@ -41,7 +45,7 @@ public class Parser {
                 else if(grammar.getNonTerminals().contains(beta.peek())){
                     expand();
                 }
-                else if( i < w.size() && beta.peek().equals(w.get(i))){
+                else if(i < w.size() && (beta.peek().equals(w.get(i)) || beta.peek().equals("epsilon"))){
                     advance();
                 }
                 else {
@@ -60,6 +64,9 @@ public class Parser {
 
         if(state.equals("f")){
             System.out.println("Sequence accepted.");
+            getAlphaAsList();
+            getProductionsString();
+            getDerivationsString();
         }
         else{
             System.out.println("Error.");
@@ -72,7 +79,6 @@ public class Parser {
     }
 
     public void expand(){
-        log("Before expand");
 
         String currentNonTerminal = beta.pop();
         alpha.push(currentNonTerminal + " 0");
@@ -82,36 +88,33 @@ public class Parser {
             beta.push(production.get(j));
         }
 
-        log("After expand");
     }
 
     public void advance(){
-        log("Before advance");
 
-        i = i + 1;
+        if(! beta.peek().equals("epsilon")){
+            i = i + 1;
+        }
         alpha.push(beta.pop());
 
-        log("After advance");
     }
 
     public void momentaryInsuccess(){
-        log("Before momentary insuccess");
 
         state = "b";
 
-        log("After momentary insuccess");
     }
 
     public void back(){
-        log("Before back");
         state = "b";
-        i = i - 1;
+        if(! alpha.peek().equals("epsilon"))
+        {
+            i = i - 1;
+        }
         beta.push(alpha.pop());
-        log("After back");
     }
 
     public void anotherTry(){
-        log("Before another try");
 
         String currentProduction = alpha.pop();
         String[] nonTerminalAndProductionNumber = currentProduction.split(" ");
@@ -120,7 +123,6 @@ public class Parser {
 
         List<List<String>> allProductions = grammar.getProductionsForNonTerminal(currentNonTerminal);
 
-        // Eliminam din beta elementele productiei curente:
         eliminateProductionsFromBeta(currentNonTerminal, productionNumber);
 
         if(productionNumber < allProductions.size() - 1){
@@ -143,7 +145,6 @@ public class Parser {
             }
         }
 
-        log("After another try");
     }
 
     public void eliminateProductionsFromBeta(String currentNonTerminal, int productionNumber){
@@ -153,6 +154,75 @@ public class Parser {
             j++;
         }
     }
+
+
+    public void getAlphaAsList(){
+        while(! alpha.empty()){
+            String element = alpha.pop();
+            alphaList.add(element);
+        }
+        Collections.reverse(alphaList);
+    }
+
+    public void getProductionsString(){
+        List<String> productions = new ArrayList<>();
+
+        for(String element: alphaList){
+            if(! grammar.getTerminals().contains(element)){
+                String[] nonTerminalAndProductionNumber = element.split(" ");
+                String currentNonTerminal = nonTerminalAndProductionNumber[0];
+                int productionNumber = Integer.parseInt(nonTerminalAndProductionNumber[1]);
+                List<String> usedProduction = grammar.getProductionsForNonTerminal(currentNonTerminal).get(productionNumber);
+
+                String production = currentNonTerminal + " -> ";
+                for(String s: usedProduction){
+                    production += s + " ";
+                }
+
+                productions.add(production);
+            }
+        }
+        productions.forEach(System.out::println);
+    }
+
+    public void getDerivationsString(){
+        List<String> derivations = new ArrayList<>();
+        derivations.add(grammar.getStartingSymbol());
+
+        for(String element: alphaList) {
+            String derivation = derivations.get(derivations.size() - 1);
+            if(derivation.contains("epsilon")){
+                derivation = derivation.replaceFirst("epsilon ", "").replaceFirst("epsilon", "");
+                derivations.add(derivation);
+            }
+
+            if (!grammar.getTerminals().contains(element)) {
+                String[] nonTerminalAndProductionNumber = element.split(" ");
+                String nonTerminal = nonTerminalAndProductionNumber[0];
+                int productionNumber = Integer.parseInt(nonTerminalAndProductionNumber[1]);
+
+                if(! nonTerminal.equals("")){
+                    List<String> usedProduction = grammar.getProductionsForNonTerminal(nonTerminal).get(productionNumber);
+
+                    String production = "";
+                    for(String s: usedProduction){
+                        production += s + " ";
+                    }
+                    production = production.trim();
+
+                    derivation = derivations.get(derivations.size() - 1);
+                    derivation = derivation.replaceFirst(nonTerminal, production);
+                    derivations.add(derivation);
+                }
+            }
+        }
+
+        for(int i = 0; i < derivations.size() - 1; i++){
+            System.out.print(derivations.get(i) + " => ");
+        }
+        System.out.print(derivations.get(derivations.size() - 1) + "\n");
+    }
+
 
     public void log(String operation) {
         System.out.println("> " + operation);

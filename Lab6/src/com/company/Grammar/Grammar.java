@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Grammar {
 
@@ -173,6 +174,55 @@ public class Grammar {
         }
         terminals += "\n";
         return terminals;
+    }
+
+
+    public void solveLeftRecursivity(){
+        Map<List<String>, List<List<String>>> auxProductions = new HashMap<>();
+
+        for(List<String> lhs: productions.keySet()){
+            List<List<String>> leftRecursiveProductions = productions.get(lhs)
+                    .stream().filter(p -> p.get(0).equals(lhs.get(0)))
+                    .collect(Collectors.toList());
+
+            if(leftRecursiveProductions.size() > 0){
+                List<List<String>> newProductionsForLHS = new ArrayList<>();
+                String auxNonTerminal = lhs.get(0) + "Aux";
+                List<List<String>> newProductionsForAux = new ArrayList<>();
+
+                boolean hasBeta = false;
+
+                for(List<String> rhs: productions.get(lhs)){
+                    if(! leftRecursiveProductions.contains(rhs)){
+                        newProductionsForLHS.add(rhs);
+                        newProductionsForLHS.get(newProductionsForLHS.size() - 1).add(auxNonTerminal);
+                        hasBeta = true;
+                    }
+                    else{
+                        List<String> newProd = new ArrayList<>();
+                        for(int i = 1; i < rhs.size(); i++){
+                            newProd.add(rhs.get(i));
+                        }
+                        newProd.add(auxNonTerminal);
+                        newProductionsForAux.add(newProd);
+                    }
+                }
+                newProductionsForAux.add(Arrays.asList("epsilon"));
+
+                if(!hasBeta){
+                    throw new RuntimeException("Left recursive production without beta!");
+                }
+                auxProductions.put(Arrays.asList(auxNonTerminal), newProductionsForAux);
+                nonTerminals.add(auxNonTerminal);
+                terminals.add("epsilon");
+                productions.put(lhs, newProductionsForLHS);
+            }
+        }
+
+        for(List<String> lhs: auxProductions.keySet()){
+            productions.put(lhs, auxProductions.get(lhs));
+        }
+
     }
 
 }
