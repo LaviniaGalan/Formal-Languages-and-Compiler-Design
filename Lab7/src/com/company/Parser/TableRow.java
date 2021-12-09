@@ -34,4 +34,25 @@ public class TableRow {
     public void setRightSibling(int rightSibling) {
         this.rightSibling = rightSibling;
     }
+
+    public int getIndex() {
+        return index;
+    }
+
+    public String getSymbol() {
+        return symbol;
+    }
+
+    public int getParent() {
+        return parent;
+    }
+
+    public int getRightSibling() {
+        return rightSibling;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%-7d%-15s%-7d%-7d", index, symbol, parent, rightSibling);
+    }
 }

@@ -2,7 +2,6 @@ package com.company.Parser;
 
 import com.company.Grammar.Grammar;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
 public class Parser {
@@ -16,6 +15,8 @@ public class Parser {
     private Stack<String> beta;
 
     List<String> alphaList = new ArrayList<>();
+
+
 
     public Parser(Grammar grammar, String w) {
         this.grammar = grammar;
@@ -66,8 +67,9 @@ public class Parser {
             System.out.println("Sequence accepted.");
             getAlphaAsList();
             //System.out.println(alphaList);
-            getProductionsString();
-            getDerivationsString();
+            var productions = getProductionsString();
+            //getDerivationsString();
+            getParsingTable(productions);
         }
         else{
             System.out.println("Error.");
@@ -165,8 +167,8 @@ public class Parser {
         Collections.reverse(alphaList);
     }
 
-    public void getProductionsString(){
-        List<String> productions = new ArrayList<>();
+    public List<Map.Entry<String, List<String>>> getProductionsString(){
+        List<Map.Entry<String, List<String>>> productions = new ArrayList<>();
 
         for(String element: alphaList){
             if(! grammar.getTerminals().contains(element)){
@@ -175,15 +177,12 @@ public class Parser {
                 int productionNumber = Integer.parseInt(nonTerminalAndProductionNumber[1]);
                 List<String> usedProduction = grammar.getProductionsForNonTerminal(currentNonTerminal).get(productionNumber);
 
-                String production = currentNonTerminal + " -> ";
-                for(String s: usedProduction){
-                    production += s + " ";
-                }
-
-                productions.add(production);
+                productions.add(new AbstractMap.SimpleEntry<>(currentNonTerminal, usedProduction));
             }
         }
         productions.forEach(System.out::println);
+
+        return productions;
     }
 
     public void getDerivationsString(){
@@ -224,37 +223,51 @@ public class Parser {
         System.out.print(derivations.get(derivations.size() - 1) + "\n");
     }
 
-    public void getParsingTable(){
+
+    Integer currentProduction = 0;
+    Integer rowIndex = 1;
+
+    public void getParsingTable(List<Map.Entry<String, List<String>>> productions){
         List<TableRow> tree = new ArrayList<>();
+        tree.add(new TableRow(0, grammar.getStartingSymbol(), -1, -1));
 
-        int i;
+        getRec(tree, productions, 0);
 
-        int tableIndex = 0;
+        tree.forEach(System.out::println);
+    }
 
-        for(i = 0; i < alphaList.size(); i++){
+    public void getRec(List<TableRow> tree, List<Map.Entry<String, List<String>>> productions, int parent){
+
+        var usedProduction = productions.get(currentProduction);
+
+        List<String> rhs = usedProduction.getValue();
+        List<TableRow> auxRows = new ArrayList<>();
+
+        for(int i = 0; i < rhs.size(); i++){
             TableRow row = new TableRow();
-            row.setIndex(tableIndex);
+            row.setIndex(rowIndex);
+            rowIndex++;
+            row.setSymbol(rhs.get(i));
+            row.setParent(parent);
 
-            String symbol = "";
-            if(grammar.getTerminals().contains(alphaList.get(i))){
-                symbol = alphaList.get(i);
+            if(i < rhs.size() - 1){
+                row.setRightSibling(rowIndex);
             }
-            else{
-                String[] nonTerminalAndProductionNumber = alphaList.get(i).split(" ");
-                symbol = nonTerminalAndProductionNumber[0];
+            else {
+                row.setRightSibling(-1);
             }
-            row.setSymbol(symbol);
+            auxRows.add(row);
+        }
+
+        tree.addAll(auxRows);
+
+        for(TableRow row: auxRows){
+            if(grammar.getNonTerminals().contains(row.getSymbol())){
+                currentProduction = currentProduction + 1;
+                getRec(tree, productions, row.getIndex());
+            }
         }
 
     }
 
-
-    public void log(String operation) {
-        System.out.println("> " + operation);
-        System.out.println("Alpha = " + alpha);
-        System.out.println("Beta = " + beta);
-        System.out.println("state = " + state);
-        System.out.println("i = " + i);
-        System.out.println("\n\n");
-    }
 }
