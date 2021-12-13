@@ -1,0 +1,6 @@
+S A B C
+a b c v x1 x2 s
+S
+S -> A a | b B
+A -> A c | A s | x1 | x2
+B -> b B A v | b B | v

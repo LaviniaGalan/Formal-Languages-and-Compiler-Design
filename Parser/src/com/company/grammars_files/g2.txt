@@ -1,0 +1,24 @@
+Prog DecList StmtList Dec Type IdenList SimpleType ArrType Stmt AssignStmt IOStmt CondStmt LoopStmt Expr NumExpr Operator CompCond Cond LogOperator RelOperator
+start ; exit int char string [ ] , = + * % - / read ( ) write if { } then else while do && || <= < == > >= != identifier constant
+Prog
+Prog -> start ; DecList StmtList exit ;
+DecList -> Dec | Dec DecList
+Dec -> Type IdenList ;
+Type -> SimpleType | ArrType
+SimpleType -> int | char | string
+ArrType -> SimpleType [ constant ]
+IdenList -> identifier | identifier , IdenList
+
+StmtList -> Stmt ; | Stmt ; StmtList
+Stmt -> AssignStmt | IOStmt | CondStmt | LoopStmt
+AssignStmt -> identifier = Expr
+Expr -> constant | NumExpr
+NumExpr -> constant | constant Operator NumExpr | identifier | identifier Operator NumExpr
+Operator -> + | * | % | - | /
+IOStmt -> read ( identifier ) | write ( identifier ) | write ( constant )
+CondStmt -> if ( CompCond ) then { StmtList } | if ( CompCond ) then { StmtList } else { StmtList }
+LoopStmt -> while ( CompCond ) do { StmtList }
+CompCond -> Cond | Cond LogOperator CompCond
+LogOperator -> && | ||
+Cond -> NumExpr RelOperator NumExpr
+RelOperator -> <= | < | == | > | >= | !=

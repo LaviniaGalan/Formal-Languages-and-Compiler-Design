@@ -1,0 +1,7 @@
+S A B C
+a b c v x epsilon
+S
+S -> a A C | b B
+A -> x A | epsilon
+B -> b B A v | b B | v
+C -> c
