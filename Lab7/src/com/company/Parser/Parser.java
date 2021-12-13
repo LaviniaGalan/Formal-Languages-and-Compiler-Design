@@ -14,11 +14,13 @@ public class Parser {
     private Stack<String> alpha;
     private Stack<String> beta;
 
-    List<String> alphaList = new ArrayList<>();
+
+    private boolean onPif;
+    private ParserOutput parserOutput;
 
 
 
-    public Parser(Grammar grammar, String w) {
+    public Parser(Grammar grammar, String w, boolean onPif) {
         this.grammar = grammar;
         String[] wAsList = w.split(" ");
         this.w.addAll(Arrays.asList(wAsList));
@@ -28,6 +30,8 @@ public class Parser {
         alpha = new Stack<>();
         beta = new Stack<>();
         beta.push(grammar.getStartingSymbol());
+
+        this.onPif = onPif;
     }
 
     public void descendingRecursiveParsing(){
@@ -41,7 +45,7 @@ public class Parser {
                     success();
                 }
                 else if(beta.empty()){
-                    back();
+                    momentaryInsuccess();
                 }
                 else if(grammar.getNonTerminals().contains(beta.peek())){
                     expand();
@@ -65,11 +69,14 @@ public class Parser {
 
         if(state.equals("f")){
             System.out.println("Sequence accepted.");
-            getAlphaAsList();
-            //System.out.println(alphaList);
-            var productions = getProductionsString();
-            //getDerivationsString();
-            getParsingTable(productions);
+
+            if(onPif){
+                parserOutput = new ParserOutput(grammar, alpha, "E:\\CS\\An 3\\FLCD\\Lab6\\src\\com\\company\\out\\out2.txt");
+            }
+            else {
+                parserOutput = new ParserOutput(grammar, alpha, "E:\\CS\\An 3\\FLCD\\Lab6\\src\\com\\company\\out\\out1.txt");
+            }
+
         }
         else{
             System.out.println("Error.");
@@ -109,7 +116,7 @@ public class Parser {
     }
 
     public void back(){
-        state = "b";
+        //state = "b";
         if(! alpha.peek().equals("epsilon"))
         {
             i = i - 1;
@@ -159,115 +166,6 @@ public class Parser {
     }
 
 
-    public void getAlphaAsList(){
-        while(! alpha.empty()){
-            String element = alpha.pop();
-            alphaList.add(element);
-        }
-        Collections.reverse(alphaList);
-    }
 
-    public List<Map.Entry<String, List<String>>> getProductionsString(){
-        List<Map.Entry<String, List<String>>> productions = new ArrayList<>();
-
-        for(String element: alphaList){
-            if(! grammar.getTerminals().contains(element)){
-                String[] nonTerminalAndProductionNumber = element.split(" ");
-                String currentNonTerminal = nonTerminalAndProductionNumber[0];
-                int productionNumber = Integer.parseInt(nonTerminalAndProductionNumber[1]);
-                List<String> usedProduction = grammar.getProductionsForNonTerminal(currentNonTerminal).get(productionNumber);
-
-                productions.add(new AbstractMap.SimpleEntry<>(currentNonTerminal, usedProduction));
-            }
-        }
-        productions.forEach(System.out::println);
-
-        return productions;
-    }
-
-    public void getDerivationsString(){
-        List<String> derivations = new ArrayList<>();
-        derivations.add(grammar.getStartingSymbol());
-
-        for(String element: alphaList) {
-            String derivation = derivations.get(derivations.size() - 1);
-            if(derivation.contains("epsilon")){
-                derivation = derivation.replaceFirst("epsilon ", "").replaceFirst("epsilon", "");
-                derivations.add(derivation);
-            }
-
-            if (!grammar.getTerminals().contains(element)) {
-                String[] nonTerminalAndProductionNumber = element.split(" ");
-                String nonTerminal = nonTerminalAndProductionNumber[0];
-                int productionNumber = Integer.parseInt(nonTerminalAndProductionNumber[1]);
-
-                if(! nonTerminal.equals("")){
-                    List<String> usedProduction = grammar.getProductionsForNonTerminal(nonTerminal).get(productionNumber);
-
-                    String production = "";
-                    for(String s: usedProduction){
-                        production += s + " ";
-                    }
-                    production = production.trim();
-
-                    derivation = derivations.get(derivations.size() - 1);
-                    derivation = derivation.replaceFirst(nonTerminal, production);
-                    derivations.add(derivation);
-                }
-            }
-        }
-
-        for(int i = 0; i < derivations.size() - 1; i++){
-            System.out.print(derivations.get(i) + " => ");
-        }
-        System.out.print(derivations.get(derivations.size() - 1) + "\n");
-    }
-
-
-    Integer currentProduction = 0;
-    Integer rowIndex = 1;
-
-    public void getParsingTable(List<Map.Entry<String, List<String>>> productions){
-        List<TableRow> tree = new ArrayList<>();
-        tree.add(new TableRow(0, grammar.getStartingSymbol(), -1, -1));
-
-        getRec(tree, productions, 0);
-
-        tree.forEach(System.out::println);
-    }
-
-    public void getRec(List<TableRow> tree, List<Map.Entry<String, List<String>>> productions, int parent){
-
-        var usedProduction = productions.get(currentProduction);
-
-        List<String> rhs = usedProduction.getValue();
-        List<TableRow> auxRows = new ArrayList<>();
-
-        for(int i = 0; i < rhs.size(); i++){
-            TableRow row = new TableRow();
-            row.setIndex(rowIndex);
-            rowIndex++;
-            row.setSymbol(rhs.get(i));
-            row.setParent(parent);
-
-            if(i < rhs.size() - 1){
-                row.setRightSibling(rowIndex);
-            }
-            else {
-                row.setRightSibling(-1);
-            }
-            auxRows.add(row);
-        }
-
-        tree.addAll(auxRows);
-
-        for(TableRow row: auxRows){
-            if(grammar.getNonTerminals().contains(row.getSymbol())){
-                currentProduction = currentProduction + 1;
-                getRec(tree, productions, row.getIndex());
-            }
-        }
-
-    }
 
 }
